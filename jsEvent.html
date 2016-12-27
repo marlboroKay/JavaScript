@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Document</title>
+</head>
+<body>
+	<div id = "o_id">AAA</div>
+	<input type="text" id = 'o_input'>
+	<div id ="o_event">BBB</div>
+	<div id = "o_src">CCC</div>
+	<div id = "o_click">DDD</div>
+	<ul>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>AAA</li>
+		<li>CCC</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>ccc</li>
+		<li>2</li>
+		<li>2</li>
+		<li>2</li>
+		<li>2</li>
+		<li>2</li>
+		<li>2</li>
+		<li>2</li>
+	</ul>
+    
+</body>
+<script>
+	//IE和Firfox事件处理兼容
+	/*window.event*/
+	var oid = document.getElementById('o_id');
+	oid.onclick = function ev(){
+		var e = event || window.event;
+		alert(e);
+	}
+	/*键盘值的获取*/
+	var oinput = document.getElementById('o_input');
+	oinput.onkeypress =  function myKeyPress(e){
+		var e = event || window.event;
+		var key = e.keyCode || e.which;
+		if( (key == 13 || key == 10)){
+			alert(oinput.value);
+		}
+	}
+	/*事件源的获取*/
+	var osrc = document.getElementById('o_src');
+	osrc.onclick = function getSource(){
+		var e = event || window.event;
+		console.log(e.srcElement?e.srcElement:e.target); 
+	}
+	/*事件监听*/
+	//添加监听
+	function addEvent(elem,eventName,handler){
+		if(elem.attachEvent){
+			elem.attachEvent('on'+eventName,function(){
+				handler.call(elem);//此处调用回掉函数call(),让this指向elem
+			});
+		}else if(elem.addEventListener){
+			elem.addEventListener(eventName,handler,false);
+		}
+	}
+	//删除监听
+	function removeEvent(elem,eventName,handler){
+		if(elem.detachEvent){
+			elem.detachEvent('on'+eventName,function(){
+				handler.call(elem);//此处调用回掉函数call(),让this指向elem
+			});
+		}else if(elem.removeEventListener){
+			elem.removeEventListener(eventName,handler,false);
+		}
+	}
+	var oEvent = document.getElementById('o_event');
+	addEvent(oEvent,'click',function(){alert(this.innerHTML)})
+	/*鼠标位置*/
+	function getAbsPoint(obj){
+		var e = e || window.event
+		var x = obj.offsetLeft;
+		var y = obj.offsetTop;
+		alert('x:'+x+','+'y:'+y);
+	}
+	var oClick = document.getElementById('o_click')
+	addEvent(oClick,'click',function(){getAbsPoint(oClick)})
+
+	/*改变浏览器大小*/
+	window.onresize = function(){
+		console.log(document.documentElement.clientWidth);
+	}
+
+	//难点
+	/*事件的委托*/
+	//传统方式
+	/*window.onload = function(){
+		var ul = document.getElementsByTagName('ul')[0];
+		var li = ul.getElementsByTagName('li');
+		for (var i = 0; i < li.length; i++) {
+			li[i].onclick = function(){
+				alert(this.innerHTML);
+			};
+		};
+	}*/
+	//事件的方式
+	window.onload = function(){
+		var ul = document.getElementsByTagName('ul')[0];
+		ul.onclick = function(e){
+			e = e || window.event;
+			var who = e.target || e.srcElement;
+			alert(who.innerHTML)
+		}
+	}
+
+	//冒泡排序(由小到大)
+	function bubbleSort(arr){
+		for(var i=0;i<arr.length;i++){
+			for(var j = i;j<arr.length;j++)
+				if(arr[i]>arr[j]){
+					var temp = arr[i];
+					arr[i] = arr[j];
+					arr[j] = temp;
+				}
+			}
+			return arr;
+	}
+		
+	
+
+	var arr = [32,55,78,43,78,10,45,20,9,89];
+	console.log(bubbleSort(arr));
+
+	//升序排序
+
+	function des(a,b){
+		return a-b;
+	}
+	console.log(arr.sort(des));
+
+	//阻止冒泡事件的发生
+	function stopBubble(e){
+		if(e&&e.stopPropagation){
+			e.stopPropagation();
+		}else{
+			window.event.cancelBubble = true;
+		}
+	}
+
+	//阻止默认事件发生
+	function stopDefault(e){
+		if(e&&e.preventDefault){
+			e.preventDefault();
+		}else{
+			window.event.returnValue = false;
+		}
+		return false;
+	}
+
+	
+	
+</script>
+</html>
