@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JS</title>
+</head>
+
+<script type="text/javascript">
+
+/*
+ *如果我们以一个简单的待办事项列表为例，面试官可能会告诉你，
+ *他们希望在用户单击其中一个列表项时需要执行某些操作。 
+ *他们希望你用 JavaScript 实现这个功能
+ */
+/*事件监听*/
+	//document.addEventListener('DOMContentLoaded',function(){
+		//let app = document.getElementById('todo-app');
+		//let items = app.getElementsByClassName('item');
+		/*将事件监听器绑定到每个列表上*/
+		/*ES6*/
+		/*for(let item of items){
+			item.addEventListener('click',function(){
+				alert('you clicked on item:'+item.innerHTML);
+			});
+		}*/
+
+		/*ES5*/
+		/*for(var i = 0; i<items.length;i++){
+			items[i].onclick = function(){
+				alert('you clicked on item:'+this.textContent)
+			};
+		}*/
+	//});
+
+
+/*虽然这个实现了功能，问题是您要单独将事件侦听器绑定到每个列表项。
+ *这是4个元素，没什么大问题，但如果有人在他们的待办事项列表中添加了10,000个事项（他们可能有很多事情要做）
+ *怎么办？然后你的函数将创建 10,000 个独立的事件监听器，
+ *并将每个事件监听器绑定到 DOM 。这样代码执行的效率非常低下。
+ *在面试中，最好首先询问面试官用户可以输入事项的最大数量是多少。
+ *如果它永远不会超过10个，上面的代码将工作正常。
+ *但是，如果用户可以输入的事项数量没有限制，那么你应该使用一个更高效的解决方案。
+ *如果你的应用程序最终可能有几百个事件监听器，更高效的解决方案是将一个事件侦听器实际绑定到整个容器上，
+ *然后在实际单击时可以访问每个确切元素。这被称为事件委托，并且它每个元素单独绑定事件处理程序更高效。
+ */
+
+/*事件委托*/
+
+	document.addEventListener('DOMContentLoaded',function(){
+		let app = document.getElementById('todo-app');
+
+		//事件侦听器绑定到整个容器上
+		app.addEventListener('click',function(e){
+			e.stopPropagation();
+			e.preventDefault();
+			if(e.target && e.target.nodeName === 'LI'){
+				let item = e.target;
+				alert('you clicked on item:'+item.innerHTML);
+			}
+		});
+	})
+
+/*循环内使用闭包*/
+
+/*闭包常常在面试中出现，以便面试官衡量你对这门语言的熟悉程度，以及是否知道何时使用闭包。
+
+ *闭包的本质是一个内部函数访问其作用域之外的变量。闭包可以用于实现诸如 私有变量 和 *创建工厂函数之类的东西。关于使用闭包的常见面试问题是这样的：
+
+ *编写一个函数，它将循环遍历整数列表，并在3秒延迟后打印每个元素的索引。
+
+ *我看到这个问题的最常见（但是不正确）是像下面这样的实现
+ */
+
+var arr = [1,2,3,4,5];
+
+for(var i = 0; i <= arr.length; i++){
+	setTimeout(function(){
+		console.log('The index of this number is '+i);
+	},3000)
+}
+// The index of this number is 6
+ 
+
+//正确闭包 ES5写法
+
+for(var i = 0; i <= arr.length; i++){
+	setTimeout(function(obj){
+		return function(){
+			console.log('ES5 The index of this number is '+obj);
+		}
+	}(i),3000)
+} 
+
+//正确闭包 ES6写法
+
+for(let i = 0;i <= arr.length; i++){
+	setTimeout(function(){
+		console.log('ES6 The index of this number is '+i);
+	},3000)
+}
+
+/*函数防抖动*/
+/*
+ *有一些浏览器事件可以在很短的时间内快速启动多次，例如调整窗口大小或向下滚动页面。
+ *例如，如果将事件侦听器绑定到窗口滚动事件上，并且用户继续非常快速地向下滚动页面，你的事件可能会在3秒的范围
+ *内被触发数千次。这可能会导致一些严重的性能问题。
+ *如果你在面试中讨论构建应用程序和事件，如滚动，窗口调整大小，或键盘按下的事件时，
+ *请务必提及 函数防抖动(Debouncing) 和/或 函数节流（Throttling）来提升页面速度和性能。
+ *一个真实的案例，来自 guest post on css-tricks:
+ *在2011年，一个问题在Twitter上被提出：当你滚动Twitter feed时，它会会变得非常慢甚至未响应。
+ *John Resig 就这个问题发布了一篇博文，它解释了直接绑定函数到scroll事件上是多么糟糕的事。
+
+ *函数防抖动(Debouncing) 是解决这个问题的一种方式，通过限制需要经过的时间，直到再次调用函数。
+ *一个正确实现函数防抖的方法是：把多个函数放在一个函数里调用，隔一定时间执行一次。
+ *这里有一个使用原生JavaScript实现的例子，用到了作用域、闭包、this和定时事件：
+
+ */
+//debounce函数用来包裹我们的时间
+function debounce(fn,delay){
+	//持久化一个定时器timer
+	let timer = null;
+	//闭包函数可以访问timer
+	return function(){
+		//通过‘this’ 和 ‘arguments’
+		//获得函数的作用域和参数
+		let context = this;
+		let args = arguments;
+		//如果事件被触发，清除timer并重新开始计时
+		clearTimeout(timer);
+		timer = setTimeout(function(){
+			fn.apply(context,args);
+		},delay);
+	}
+}
+
+//当用户滚动时函数被调用
+function foo(){
+	console.log('You are scrolling!');
+}
+
+/*let elem = document.getElementById('container');
+elem.addEventListener('scroll',debounce(foo,2000));*/
+document.addEventListener('DOMContentLoaded',function(){
+	let elem = document.getElementById('container');
+	elem.addEventListener('scroll', debounce(foo, 2000));
+});
+
+
+
+
+</script>
+<body>
+<!-- 事件委托 -->
+<div>
+	<ul id="todo-app">
+		<li class="item">Walk the dog</li>
+		<li class="item">Pay bills</li>
+		<li class="item">Make dinner</li>
+		<li class="item">Code for one hour</li>
+	</ul>
+</div>
+
+<div id="container" style="height: 85px;border: 1px solid #000;overflow: auto;width: 268px;">
+	<div>
+	<ul>
+		<li class="item">Walk the dog</li>
+		<li class="item">Pay bills</li>
+		<li class="item">Make dinner</li>
+		<li class="item">Code for one hour</li>
+	</ul>
+</div>
+
+
+
+
+	
+</body>
+</html>
