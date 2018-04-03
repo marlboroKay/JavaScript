@@ -44,7 +44,7 @@
  *然后在实际单击时可以访问每个确切元素。这被称为事件委托，并且它每个元素单独绑定事件处理程序更高效。
  */
 
-/*事件委托*/
+/*1.事件委托*/
 
 	document.addEventListener('DOMContentLoaded',function(){
 		let app = document.getElementById('todo-app');
@@ -60,7 +60,7 @@
 		});
 	})
 
-/*循环内使用闭包*/
+/*2.循环内使用闭包*/
 
 /*闭包常常在面试中出现，以便面试官衡量你对这门语言的熟悉程度，以及是否知道何时使用闭包。
 
@@ -99,7 +99,7 @@ for(let i = 0;i <= arr.length; i++){
 	},3000)
 }
 
-/*函数防抖动*/
+/*3.函数防抖动*/
 /*
  *有一些浏览器事件可以在很短的时间内快速启动多次，例如调整窗口大小或向下滚动页面。
  *例如，如果将事件侦听器绑定到窗口滚动事件上，并且用户继续非常快速地向下滚动页面，你的事件可能会在3秒的范围
@@ -160,6 +160,7 @@ document.addEventListener('DOMContentLoaded',function(){
 	</ul>
 </div>
 
+<!--函数防抖-->
 <div id="container" style="height: 85px;border: 1px solid #000;overflow: auto;width: 268px;">
 	<div>
 	<ul>
