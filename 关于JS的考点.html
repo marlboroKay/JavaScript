@@ -7,13 +7,18 @@
 
 <script type="text/javascript">
 
+//封装DOM加载函数
+function Dom_load(fn){
+	document.addEventListener('DOMContentLoaded',fn);
+}
+
 /*
  *如果我们以一个简单的待办事项列表为例，面试官可能会告诉你，
  *他们希望在用户单击其中一个列表项时需要执行某些操作。 
  *他们希望你用 JavaScript 实现这个功能
  */
 /*事件监听*/
-	//document.addEventListener('DOMContentLoaded',function(){
+	//Dom_load(function(){
 		//let app = document.getElementById('todo-app');
 		//let items = app.getElementsByClassName('item');
 		/*将事件监听器绑定到每个列表上*/
@@ -44,9 +49,9 @@
  *然后在实际单击时可以访问每个确切元素。这被称为事件委托，并且它每个元素单独绑定事件处理程序更高效。
  */
 
-/*1.事件委托*/
+/*事件委托*/
 
-	document.addEventListener('DOMContentLoaded',function(){
+	Dom_load(function(){
 		let app = document.getElementById('todo-app');
 
 		//事件侦听器绑定到整个容器上
@@ -58,9 +63,28 @@
 				alert('you clicked on item:'+item.innerHTML);
 			}
 		});
-	})
 
-/*2.循环内使用闭包*/
+		//第二种方式
+		/*app.addEventListener('click',function(e){
+			var e = e || window.event;
+			var target = e.target || e.srcElement;
+			if(target.tagName.toLowerCase()==='li'){
+				alert('you click on item:'+target.innerHTML);
+			}
+		});*/
+
+
+		/*
+		 *tagName和nodeName的区别
+		 *tagName只能用在元素节点上，而nodeName可以用在任何节点上，
+		 *可以说nodeName涵盖了tagName，并且具有更多的功能，
+		 *因此建议总是使用nodeName
+		 */
+	});
+
+
+
+/*循环内使用闭包*/
 
 /*闭包常常在面试中出现，以便面试官衡量你对这门语言的熟悉程度，以及是否知道何时使用闭包。
 
@@ -99,7 +123,7 @@ for(let i = 0;i <= arr.length; i++){
 	},3000)
 }
 
-/*3.函数防抖动*/
+/*函数防抖动*/
 /*
  *有一些浏览器事件可以在很短的时间内快速启动多次，例如调整窗口大小或向下滚动页面。
  *例如，如果将事件侦听器绑定到窗口滚动事件上，并且用户继续非常快速地向下滚动页面，你的事件可能会在3秒的范围
@@ -115,7 +139,7 @@ for(let i = 0;i <= arr.length; i++){
  *这里有一个使用原生JavaScript实现的例子，用到了作用域、闭包、this和定时事件：
 
  */
-//debounce函数用来包裹我们的事件
+//debounce函数用来包裹我们的时间
 function debounce(fn,delay){
 	//持久化一个定时器timer
 	let timer = null;
@@ -140,11 +164,141 @@ function foo(){
 
 /*let elem = document.getElementById('container');
 elem.addEventListener('scroll',debounce(foo,2000));*/
-document.addEventListener('DOMContentLoaded',function(){
+Dom_load(function(){
 	let elem = document.getElementById('container');
 	elem.addEventListener('scroll', debounce(foo, 2000));
 });
 
+
+/*预解析*/
+/*
+ *函数表达式和声明变量相同
+ var a = function(){
+	alert(10);
+ }
+ -------------------------
+ *函数声明由于变量声明
+ function a(){
+	alert(10)
+ }
+ */
+
+
+/*{
+	alert(a); // function a(){ alert(10);}
+	a();      // 10
+	function a(){
+		alert(10);
+	};
+	a = 6;
+	alert(a); // 6
+	a();      // TypeError: a is not a function
+}*/
+
+{
+	alert(a); //undefind
+	//a();	  // TypeError: a is not a function
+	var a = 3;
+	var a = function(){
+		alert(10);
+	};
+	alert(a); // function a(){ alert(10);}
+	a = 6;
+	//a();
+}
+
+/*DOM操作*/
+/*
+ *往ul里添加10个li
+ */
+{
+	//innerHTML
+	Dom_load(addLitoUl);
+
+	function addLitoUl(){
+		var oUl = document.getElementById('ul_add_li');
+		var _html = '';
+		for(var i = 0; i <= 10; i++){
+			_html +='<li>'+i+'</li>'
+		}
+		oUl.innerHTML = _html;
+	}
+	
+}
+
+{
+	//createDocumentFragment文档碎片
+	Dom_load(addLitoUl);
+	function addLitoUl(){
+		var oUl = document.getElementById('ul_add_li');
+		var _frag = document.createDocumentFragment();
+		for(var i = 0; i <= 10; i++){
+			var oLi = document.createElement('li');
+			oLi.innerHTML = i*2;
+			_frag.appendChild(oLi);
+		}
+		oUl.appendChild(_frag);
+	}
+
+}
+
+{
+	//对象深拷贝
+	function getType(obj){
+		var toString = Object.prototype.toString;
+		var map = {
+			'[object Boolean]'  : 'boolean', 
+			'[object Number]'   : 'number', 
+			'[object String]'   : 'string', 
+			'[object Function]' : 'function', 
+			'[object Array]'    : 'array', 
+			'[object Date]'     : 'date', 
+			'[object RegExp]'   : 'regExp', 
+			'[object Undefined]': 'undefined',
+			'[object Null]'     : 'null', 
+			'[object Object]'   : 'object'
+		};
+		//对元素进行区分
+		if(obj instanceof Element ){
+			return 'element';
+		}
+		return map[toString.call(obj)];
+	}
+
+	function deepClone(data){
+		var type = getType(data);
+		var obj = '';
+		if(type === 'array'){
+			obj = [];
+		}else if(type === 'object'){
+			obj = {};
+		}else{
+			//除数组、对象外其他直接返回
+			return data;
+		}
+
+		if(type === 'array'){
+			for(var i = 0; i<data.length; i++){
+				obj.push(deepClone(data[i]));
+			}
+		}else if(type === 'object'){
+			for(var key in data){
+				obj[key] = deepClone(data[key]);
+			}
+		}
+		return obj;
+		
+	}
+
+	var testObj = {
+		'name':'javascript',
+		'age':16,
+		'hobbies':['study','football','basketball']
+	}
+
+	console.log(deepClone(testObj));
+	
+}
 
 
 
@@ -160,14 +314,17 @@ document.addEventListener('DOMContentLoaded',function(){
 	</ul>
 </div>
 
-<!--函数防抖-->
 <div id="container" style="height: 85px;border: 1px solid #000;overflow: auto;width: 268px;">
-	<div>
 	<ul>
 		<li class="item">Walk the dog</li>
 		<li class="item">Pay bills</li>
 		<li class="item">Make dinner</li>
 		<li class="item">Code for one hour</li>
+	</ul>
+</div>
+
+<div>
+	<ul id="ul_add_li">
 	</ul>
 </div>
 
